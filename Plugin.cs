@@ -21,7 +21,7 @@ namespace HelheimHarmonizer
     public class HelheimHarmonizerPlugin : BaseUnityPlugin
     {
         internal const string ModName = "HelheimHarmonizer";
-        internal const string ModVersion = "1.0.1";
+        internal const string ModVersion = "1.0.2";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -57,8 +57,9 @@ namespace HelheimHarmonizer
             
             totalPinRemoval = config("1 - Pin Control", "TotalPinRemoval", Toggle.Off, "If on, no death pin will be created when the player dies.");
             removeOnEmpty = config("1 - Pin Control", "RemovePinOnTombstoneInteract", Toggle.On, "If on, the death pin for the tombstone will be removed when the tombstone is fully looted.");
-            noItemLoss = config("2 - Death Control", "NoItemLossOnDeath", Toggle.Off, "If on, you will not lose any items on death.");
-
+            
+            noItemLoss = config("2 - Death Control", "NoItemLossOnDeath", Toggle.Off, "If on, you will not lose any items on death even if it's set to drop via the yml configuration.");
+            keepEquipped = config("2 - Death Control", "KeepEquippedOnDeath", Toggle.Off, "If on, you will not lose any of your equipped items on death even if it's set to drop via the yml configuration.");
             createDeathEffects = config("2 - Death Control", "CreateDeathEffects", Toggle.On, "Toggle death effects when the player dies.");
             //createTombstone = config("2 - Death Control", "CreateTombstone", Toggle.On, "Toggle tombstone creation when the player dies.");
             clearFoods = config("2 - Death Control", "ClearFoods", Toggle.On, "Toggle clearing the player's food list when the player dies.");
@@ -197,6 +198,7 @@ namespace HelheimHarmonizer
         public static ConfigEntry<Toggle> totalPinRemoval = null!;
         public static ConfigEntry<Toggle> removeOnEmpty = null!;
         public static ConfigEntry<Toggle> noItemLoss = null!;
+        public static ConfigEntry<Toggle> keepEquipped = null!;
         
         public static ConfigEntry<Toggle> createDeathEffects;
         public static ConfigEntry<Toggle> createTombstone;

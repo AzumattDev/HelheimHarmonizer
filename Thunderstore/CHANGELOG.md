@@ -1,4 +1,5 @@
-| `Version` | `Update Notes`                                                                                                                                          |
-|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1.0.1     | - Check the includeOverride list for groups first, so items in groups are dropped or kept correctly when excluding a group that contains another group. |
-| 1.0.0     | - Initial Release                                                                                                                                       |
+| `Version` | `Update Notes`                                                                                                                                                                                                  |
+|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.0.2     | - Add configuration option to keep equipped items on death. It's in section 2 - Death Control. If on, you will not lose any of your equipped items on death even if it's set to drop via the yml configuration. |
+| 1.0.1     | - Check the includeOverride list for groups first, so items in groups are dropped or kept correctly when excluding a group that contains another group.                                                         |
+| 1.0.0     | - Initial Release                                                                                                                                                                                               |
