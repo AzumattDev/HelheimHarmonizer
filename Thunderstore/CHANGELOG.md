@@ -1,3 +1,4 @@
-| `Version` | `Update Notes`    |
-|-----------|-------------------|
-| 1.0.0     | - Initial Release |
+| `Version` | `Update Notes`                                                                                                                                          |
+|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.0.1     | - Check the includeOverride list for groups first, so items in groups are dropped or kept correctly when excluding a group that contains another group. |
+| 1.0.0     | - Initial Release                                                                                                                                       |

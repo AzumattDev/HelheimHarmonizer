@@ -184,30 +184,6 @@ public class Functions
             }
         }
 
-        // Check if the item is in the "exclude" list
-        var excludeList = containerData.TryGetValue("exclude", out object? excludeValue)
-            ? excludeValue as List<object>
-            : new List<object>();
-        if (excludeList != null)
-        {
-            if (excludeList.Contains(prefab))
-            {
-                return ItemAction.Keep;
-            }
-
-            foreach (var excludeItem in excludeList)
-            {
-                if (GroupUtils.IsGroupDefined((string)excludeItem))
-                {
-                    var groupItems = GroupUtils.GetItemsInGroup((string)excludeItem);
-                    if (groupItems.Contains(prefab))
-                    {
-                        return ItemAction.Keep;
-                    }
-                }
-            }
-        }
-
         // For each action, check if it's defined and if the item is in the corresponding list
         var actions = new Dictionary<string, ItemAction> { { "includeOverride", ItemAction.Drop } };
         foreach (var action in actions)
@@ -236,6 +212,30 @@ public class Functions
                     if (groupItems.Contains(prefab))
                     {
                         return action.Value;
+                    }
+                }
+            }
+        }
+
+        // Check if the item is in the "exclude" list
+        var excludeList = containerData.TryGetValue("exclude", out object? excludeValue)
+            ? excludeValue as List<object>
+            : new List<object>();
+        if (excludeList != null)
+        {
+            if (excludeList.Contains(prefab))
+            {
+                return ItemAction.Keep;
+            }
+
+            foreach (var excludeItem in excludeList)
+            {
+                if (GroupUtils.IsGroupDefined((string)excludeItem))
+                {
+                    var groupItems = GroupUtils.GetItemsInGroup((string)excludeItem);
+                    if (groupItems.Contains(prefab))
+                    {
+                        return ItemAction.Keep;
                     }
                 }
             }
