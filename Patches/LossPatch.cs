@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using BepInEx.Configuration;
 using HelheimHarmonizer.Util;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -116,32 +119,36 @@ static class SkillsLowerAllSkillsPatch
 [HarmonyPatch(typeof(Player), nameof(Player.OnDeath))]
 public static class PatchPlayerOnDeath
 {
-    [HarmonyTranspiler]
-    public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    private static void Prefix(Player __instance, out List<Player.Food> __state)
     {
-        List<CodeInstruction> codes = new(instructions);
-
-        for (int i = 0; i < codes.Count; ++i)
+        foreach (Player.Food food in __instance.m_foods)
         {
-            CodeInstruction code = codes[i];
-#if DEBUG
-            HelheimHarmonizerPlugin.HelheimHarmonizerLogger.LogMessage($"Processing instruction {i} with opcode {code.opcode} and operand {code.operand}");
-#endif
-
-            // Toggle ClearFoods
-            if (code.opcode == OpCodes.Callvirt && (MethodInfo)code.operand ==
-                AccessTools.Method(typeof(List<Player.Food>), nameof(List<Player.Food>.Clear)))
-            {
-                if (HelheimHarmonizerPlugin.clearFoods.Value == HelheimHarmonizerPlugin.Toggle.Off)
-                {
-#if DEBUG
-                    HelheimHarmonizerPlugin.HelheimHarmonizerLogger.LogMessage("ClearFoods toggled off, inserting NoOp");
-#endif
-                    code.opcode = OpCodes.Nop;
-                }
-            }
-
-            yield return code;
+            if (food.m_item.m_dropPrefab != null)
+                HelheimHarmonizerPlugin.HelheimHarmonizerLogger.LogDebug($"Adding {food.m_item.m_shared.m_name} [{food.m_item.m_dropPrefab.name}] to state");
         }
+
+        __state = new List<Player.Food>(__instance.m_foods);
+    }
+
+    private static void Postfix(Player __instance, List<Player.Food> __state)
+    {
+        if (!ShouldClearFoods())
+        {
+            foreach (Player.Food food in __state)
+            {
+                if (food.m_item.m_dropPrefab != null)
+                    HelheimHarmonizerPlugin.HelheimHarmonizerLogger.LogDebug($"Adding {food.m_item.m_shared.m_name} [{food.m_item.m_dropPrefab.name}] back to the player's stomach.");
+                __instance.m_foods.Add(food);
+            }
+        }
+        else
+        {
+            HelheimHarmonizerPlugin.HelheimHarmonizerLogger.LogDebug("Clearing the player's stomach.");
+        }
+    }
+
+    public static bool ShouldClearFoods()
+    {
+        return HelheimHarmonizerPlugin.clearFoods.Value == HelheimHarmonizerPlugin.Toggle.On;
     }
 }

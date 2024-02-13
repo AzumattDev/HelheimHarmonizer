@@ -21,19 +21,16 @@ namespace HelheimHarmonizer
     public class HelheimHarmonizerPlugin : BaseUnityPlugin
     {
         internal const string ModName = "HelheimHarmonizer";
-        internal const string ModVersion = "1.0.3";
+        internal const string ModVersion = "1.0.5";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
         private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
         internal static string ConnectionError = "";
         private readonly Harmony _harmony = new(ModGUID);
+        public static readonly ManualLogSource HelheimHarmonizerLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
 
-        public static readonly ManualLogSource HelheimHarmonizerLogger =
-            BepInEx.Logging.Logger.CreateLogSource(ModName);
-
-        private static readonly ConfigSync ConfigSync = new(ModGUID)
-            { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
+        private static readonly ConfigSync ConfigSync = new(ModGUID) { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
         
         internal static Dictionary<string, object> yamlData;
         internal static Dictionary<string, HashSet<string>> groups;

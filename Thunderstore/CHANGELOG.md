@@ -1,5 +1,6 @@
 | `Version` | `Update Notes`                                                                                                                                                                                                  |
 |-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.0.4     | - Fix an issue with the ClearFoods configuration and patch. When set to OFF it would throw errors after the latest game patch. Now it functions normally.                                                       |
 | 1.0.3     | - Update for Valheim 0.217.22                                                                                                                                                                                   |
 | 1.0.2     | - Add configuration option to keep equipped items on death. It's in section 2 - Death Control. If on, you will not lose any of your equipped items on death even if it's set to drop via the yml configuration. |
 | 1.0.1     | - Check the includeOverride list for groups first, so items in groups are dropped or kept correctly when excluding a group that contains another group.                                                         |
