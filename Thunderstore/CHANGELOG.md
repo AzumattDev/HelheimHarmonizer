@@ -1,5 +1,6 @@
 | `Version` | `Update Notes`                                                                                                                                                                                                  |
 |-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.0.5     | - Fix an issue when using BowsBeforeHoes that might cause NREs or stuck in loading screens. BBH will handle the requipping of the quiver automatically.                                                         |
 | 1.0.4     | - Fix an issue with the ClearFoods configuration and patch. When set to OFF it would throw errors after the latest game patch. Now it functions normally.                                                       |
 | 1.0.3     | - Update for Valheim 0.217.22                                                                                                                                                                                   |
 | 1.0.2     | - Add configuration option to keep equipped items on death. It's in section 2 - Death Control. If on, you will not lose any of your equipped items on death even if it's set to drop via the yml configuration. |

@@ -73,6 +73,12 @@ static class PatchItemLoss
 
             if (item.Value)
             {
+                if (item.Key.m_dropPrefab.name.StartsWith("BBH") && item.Key.m_dropPrefab.name.EndsWith("Quiver"))
+                {
+                    // BBH will handle equipping this automatically
+                    continue;
+                }
+
                 __instance.EquipItem(item.Key, false);
             }
         }
