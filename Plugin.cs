@@ -21,7 +21,7 @@ namespace HelheimHarmonizer
     public class HelheimHarmonizerPlugin : BaseUnityPlugin
     {
         internal const string ModName = "HelheimHarmonizer";
-        internal const string ModVersion = "1.0.5";
+        internal const string ModVersion = "1.0.6";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";

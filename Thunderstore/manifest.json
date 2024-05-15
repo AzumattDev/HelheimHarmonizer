@@ -1,6 +1,6 @@
 {
   "name": "HelheimHarmonizer",
-  "version_number": "1.0.5",
+  "version_number": "1.0.6",
   "website_url": "https://discord.gg/pdHgy6Bsng",
   "description": "A mod that allows you to change some things when you die. Keep, Destroy, or Drop your items based on the YAML and normal config.",
   "dependencies": [
