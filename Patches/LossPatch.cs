@@ -78,7 +78,7 @@ static class PatchItemLoss
                     // BBH will handle equipping this automatically
                     continue;
                 }
-
+                __instance.UnequipItem(item.Key, false);
                 __instance.EquipItem(item.Key, false);
             }
         }
@@ -96,29 +96,65 @@ static class PlayerCreateDeathEffectsPatch
     }
 }
 
-[HarmonyPatch(typeof(Skills), nameof(Skills.OnDeath))]
+/*[HarmonyPatch(typeof(Skills), nameof(Skills.OnDeath))]
 static class SkillsOnDeathPatch
 {
     static bool Prefix(Skills __instance)
     {
         return HelheimHarmonizerPlugin.reduceSkills.Value != HelheimHarmonizerPlugin.Toggle.Off;
     }
-}
+
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        var codes = new List<CodeInstruction>(instructions);
+        var customMethod = AccessTools.Method(typeof(SkillsOnDeathPatch), nameof(GetCustomSkillReductionRate));
+
+        // Iterate over the instructions to find the multiplication and call to LowerAllSkills
+        for (int i = 0; i < codes.Count; i++)
+        {
+            if (codes[i].opcode == OpCodes.Ldfld && codes[i].operand.ToString().Contains("m_DeathLowerFactor"))
+            {
+                codes[i + 2] = new CodeInstruction(OpCodes.Call, customMethod); // Replace the multiplication with a custom method call
+                break;
+            }
+        }
+
+        return codes.AsEnumerable();
+    }
+
+    static float GetCustomSkillReductionRate(Skills __instance)
+    {
+        float factor = HelheimHarmonizerPlugin.globalSkillReduceFactor.Value != -1f ? HelheimHarmonizerPlugin.globalSkillReduceFactor.Value : Game.m_skillReductionRate;
+        return __instance.m_DeathLowerFactor * factor;
+    }
+}*/
 
 [HarmonyPatch(typeof(Skills), nameof(Skills.LowerAllSkills))]
-[HarmonyBefore("com.orianaventure.mod.WorldAdvancementProgression")]
 static class SkillsLowerAllSkillsPatch
 {
-    static void Prefix(ref float factor)
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        // You can modify the 'factor' argument here as needed
-        if (HelheimHarmonizerPlugin.skillReduceFactor.Value != -1f)
+        var codes = new List<CodeInstruction>(instructions);
+        var targetMethod = AccessTools.Method(typeof(SkillsLowerAllSkillsPatch), nameof(GetCustomFactor));
+
+        for (int i = 0; i < codes.Count; i++)
         {
-#if DEBUG
-            HelheimHarmonizerPlugin.HelheimHarmonizerLogger.LogMessage($"Modifying LowerAllSkills factor from {factor} to {HelheimHarmonizerPlugin.skillReduceFactor.Value}");
-#endif
-            factor = HelheimHarmonizerPlugin.skillReduceFactor.Value;
+            if (codes[i].opcode == OpCodes.Ldfld && codes[i].operand.ToString().Contains("Skills::m_level"))
+            {
+                codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_1)); // Load original factor
+                codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldloc_1)); // Load the current KeyValuePair
+                codes.Insert(i + 2, new CodeInstruction(OpCodes.Call, targetMethod));
+                codes.Insert(i + 3, new CodeInstruction(OpCodes.Starg_S, 1)); // Store the custom factor back into the argument
+                break;
+            }
         }
+
+        return codes.AsEnumerable();
+    }
+
+    static float GetCustomFactor(float originalFactor, KeyValuePair<Skills.SkillType, Skills.Skill> kvp)
+    {
+        return HelheimHarmonizerPlugin.skillReduceFactors.TryGetValue(kvp.Key, out float customFactor) ? customFactor : originalFactor;
     }
 }
 

@@ -21,7 +21,7 @@ namespace HelheimHarmonizer
     public class HelheimHarmonizerPlugin : BaseUnityPlugin
     {
         internal const string ModName = "HelheimHarmonizer";
-        internal const string ModVersion = "1.0.6";
+        internal const string ModVersion = "1.0.7";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -31,13 +31,13 @@ namespace HelheimHarmonizer
         public static readonly ManualLogSource HelheimHarmonizerLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID) { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
-        
+
         internal static Dictionary<string, object> yamlData;
         internal static Dictionary<string, HashSet<string>> groups;
         internal static readonly CustomSyncedValue<string> HelheimHarmonizerData = new(ConfigSync, "HelheimHarmonizerData", "");
         internal static readonly string yamlFileName = $"{Author}.{ModName}.yml";
         internal static readonly string yamlPath = Paths.ConfigPath + Path.DirectorySeparatorChar + yamlFileName;
-        
+
         internal static Assembly quickSlotsAssembly;
 
         public enum Toggle
@@ -51,32 +51,35 @@ namespace HelheimHarmonizer
             _serverConfigLocked = config("1 - General", "Lock Configuration", Toggle.On,
                 "If on, the configuration is locked and can be changed by server admins only.");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
-            
+
             totalPinRemoval = config("1 - Pin Control", "TotalPinRemoval", Toggle.Off, "If on, no death pin will be created when the player dies.");
             removeOnEmpty = config("1 - Pin Control", "RemovePinOnTombstoneInteract", Toggle.On, "If on, the death pin for the tombstone will be removed when the tombstone is fully looted.");
-            
+
             noItemLoss = config("2 - Death Control", "NoItemLossOnDeath", Toggle.Off, "If on, you will not lose any items on death even if it's set to drop via the yml configuration.");
             keepEquipped = config("2 - Death Control", "KeepEquippedOnDeath", Toggle.Off, "If on, you will not lose any of your equipped items on death even if it's set to drop via the yml configuration.");
             createDeathEffects = config("2 - Death Control", "CreateDeathEffects", Toggle.On, "Toggle death effects when the player dies.");
             //createTombstone = config("2 - Death Control", "CreateTombstone", Toggle.On, "Toggle tombstone creation when the player dies.");
             clearFoods = config("2 - Death Control", "ClearFoods", Toggle.On, "Toggle clearing the player's food list when the player dies.");
             reduceSkills = config("2 - Death Control", "ReduceSkills", Toggle.On, "Toggle skill reduction when the player dies.");
-            skillReduceFactor = config("2 - Death Control", "SkillReduceFactor", 0.25f, "The factor to reduce the player's skills by when ReduceSkills is on. 0.25 is vanilla.");
-            
+            globalSkillReduceFactor = config("2 - Death Control", "SkillReduceFactor", -1f, "The global factor to reduce the player's skills by when ReduceSkills is on. 0.05 is vanilla.");
+            skillReduceFactorsRaw = config("General", "SkillReduceFactors", "", "Serialized individual skill reduction factors. Overrides global factor. format: Blunt:0.75;Slash:0.6;Pierce:0.7;");
+            skillReduceFactors = DeserializeSkillReduceFactors(skillReduceFactorsRaw.Value);
+            skillReduceFactorsRaw.SettingChanged += (sender, args) => skillReduceFactors = DeserializeSkillReduceFactors(skillReduceFactorsRaw.Value);
+
             spawnAtStart = config("3 - Spawn Control", "SpawnAtStart", Toggle.Off, "Toggle spawning at the start location when the player dies.");
             useFixedSpawnCoordinates = config("3 - Spawn Control", "UseFixedSpawnCoordinates", Toggle.Off, "If on, the player will spawn at the fixed spawn coordinates.");
-            fixedSpawnCoordinates = config("3 - Spawn Control", "FixedSpawnCoordinates", new Vector3(0,0,0), "The fixed spawn coordinates to use when UseFixedSpawnCoordinates is on.");
-            
-            
+            fixedSpawnCoordinates = config("3 - Spawn Control", "FixedSpawnCoordinates", new Vector3(0, 0, 0), "The fixed spawn coordinates to use when UseFixedSpawnCoordinates is on.");
+
+
             if (!File.Exists(yamlPath))
             {
                 Functions.WriteConfigFileFromResource(yamlPath);
             }
-            
-            
+
+
             HelheimHarmonizerData.ValueChanged += OnValChangedUpdate; // check for file changes
             HelheimHarmonizerData.AssignLocalValue(Functions.ReadYamlFile());
-            
+
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
             SetupWatcher();
@@ -118,6 +121,36 @@ namespace HelheimHarmonizer
 #endif
         }
 
+        private string SerializeSkillReduceFactors(Dictionary<Skills.SkillType, float> factors)
+        {
+            List<string> entries = new List<string>();
+            foreach (var kvp in factors)
+            {
+                entries.Add($"{kvp.Key}:{kvp.Value}");
+            }
+
+            return string.Join(";", entries);
+        }
+
+        private Dictionary<Skills.SkillType, float> DeserializeSkillReduceFactors(string serialized)
+        {
+            Dictionary<Skills.SkillType, float> factors = new Dictionary<Skills.SkillType, float>();
+            if (!string.IsNullOrEmpty(serialized))
+            {
+                string[] entries = serialized.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string entry in entries)
+                {
+                    string[] parts = entry.Split(':');
+                    if (parts.Length == 2 && Enum.TryParse(parts[0], out Skills.SkillType skillType) && float.TryParse(parts[1], out float factor))
+                    {
+                        factors[skillType] = factor;
+                    }
+                }
+            }
+
+            return factors;
+        }
+
         private void OnDestroy()
         {
             Config.Save();
@@ -132,7 +165,7 @@ namespace HelheimHarmonizer
             watcher.IncludeSubdirectories = true;
             watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher.EnableRaisingEvents = true;
-            
+
             FileSystemWatcher yamlwatcher = new(Paths.ConfigPath, yamlFileName);
             yamlwatcher.Changed += ReadYamlFiles;
             yamlwatcher.Created += ReadYamlFiles;
@@ -156,7 +189,7 @@ namespace HelheimHarmonizer
                 HelheimHarmonizerLogger.LogError("Please check your config entries for spelling and format!");
             }
         }
-        
+
         private void ReadYamlFiles(object sender, FileSystemEventArgs e)
         {
             if (!File.Exists(yamlPath)) return;
@@ -171,9 +204,8 @@ namespace HelheimHarmonizer
                 HelheimHarmonizerLogger.LogError("Please check your entries for spelling and format!");
             }
         }
-        
-        
-        
+
+
         private static void OnValChangedUpdate()
         {
             HelheimHarmonizerLogger.LogDebug("OnValChanged called");
@@ -196,13 +228,15 @@ namespace HelheimHarmonizer
         public static ConfigEntry<Toggle> removeOnEmpty = null!;
         public static ConfigEntry<Toggle> noItemLoss = null!;
         public static ConfigEntry<Toggle> keepEquipped = null!;
-        
+
         public static ConfigEntry<Toggle> createDeathEffects;
         public static ConfigEntry<Toggle> createTombstone;
         public static ConfigEntry<Toggle> clearFoods;
         public static ConfigEntry<Toggle> reduceSkills;
-        public static ConfigEntry<float> skillReduceFactor;
-        
+        public static ConfigEntry<float> globalSkillReduceFactor;
+        public static Dictionary<Skills.SkillType, float> skillReduceFactors;
+        public static ConfigEntry<string> skillReduceFactorsRaw;
+
         public static ConfigEntry<Vector3> fixedSpawnCoordinates;
         public static ConfigEntry<Toggle> useFixedSpawnCoordinates;
         public static ConfigEntry<Toggle> spawnAtStart;

@@ -80,6 +80,12 @@
         <Reference Include="ServerSync">
             <HintPath>Libs\ServerSync.dll</HintPath>
         </Reference>
+        <Reference Include="Splatform">
+          <HintPath>$(PublicizedAssembliesPath)\Splatform_publicized.dll</HintPath>
+        </Reference>
+        <Reference Include="Splatform.Steam">
+          <HintPath>$(PublicizedAssembliesPath)\Splatform.Steam_publicized.dll</HintPath>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>
