@@ -1,5 +1,6 @@
 | `Version` | `Update Notes`                                                                                                                                                                                                  |
 |-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.0.8     | - Return accidental commented out patch for skill reduction. Toggle should work again.                                                                                                                          |
 | 1.0.7     | - Update for Valheim latest update (0.220.3)                                                                                                                                                                    |
 | 1.0.6     | - Recompile for Ashlands                                                                                                                                                                                        |
 | 1.0.5     | - Fix an issue when using BowsBeforeHoes that might cause NREs or stuck in loading screens. BBH will handle the requipping of the quiver automatically.                                                         |

@@ -21,7 +21,7 @@ namespace HelheimHarmonizer
     public class HelheimHarmonizerPlugin : BaseUnityPlugin
     {
         internal const string ModName = "HelheimHarmonizer";
-        internal const string ModVersion = "1.0.7";
+        internal const string ModVersion = "1.0.8";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -62,7 +62,7 @@ namespace HelheimHarmonizer
             clearFoods = config("2 - Death Control", "ClearFoods", Toggle.On, "Toggle clearing the player's food list when the player dies.");
             reduceSkills = config("2 - Death Control", "ReduceSkills", Toggle.On, "Toggle skill reduction when the player dies.");
             globalSkillReduceFactor = config("2 - Death Control", "SkillReduceFactor", -1f, "The global factor to reduce the player's skills by when ReduceSkills is on. 0.05 is vanilla.");
-            skillReduceFactorsRaw = config("General", "SkillReduceFactors", "", "Serialized individual skill reduction factors. Overrides global factor. format: Blunt:0.75;Slash:0.6;Pierce:0.7;");
+            skillReduceFactorsRaw = config("2 - Death Control", "SkillReduceFactors", "", "Serialized individual skill reduction factors. Overrides global factor. format: Blunt:0.75;Slash:0.6;Pierce:0.7;");
             skillReduceFactors = DeserializeSkillReduceFactors(skillReduceFactorsRaw.Value);
             skillReduceFactorsRaw.SettingChanged += (sender, args) => skillReduceFactors = DeserializeSkillReduceFactors(skillReduceFactorsRaw.Value);
 
@@ -93,7 +93,6 @@ namespace HelheimHarmonizer
         private void AutoDoc()
         {
 #if DEBUG
-
             // Store Regex to get all characters after a [
             Regex regex = new(@"\[(.*?)\]");
 

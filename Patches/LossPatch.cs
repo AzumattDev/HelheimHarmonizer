@@ -78,6 +78,7 @@ static class PatchItemLoss
                     // BBH will handle equipping this automatically
                     continue;
                 }
+
                 __instance.UnequipItem(item.Key, false);
                 __instance.EquipItem(item.Key, false);
             }
@@ -129,6 +130,15 @@ static class SkillsOnDeathPatch
     }
 }*/
 
+[HarmonyPatch(typeof(Skills), nameof(Skills.OnDeath))]
+static class SkillsOnDeathPatch
+{
+    static bool Prefix(Skills __instance)
+    {
+        return HelheimHarmonizerPlugin.reduceSkills.Value != HelheimHarmonizerPlugin.Toggle.Off;
+    }
+}
+
 [HarmonyPatch(typeof(Skills), nameof(Skills.LowerAllSkills))]
 static class SkillsLowerAllSkillsPatch
 {
@@ -137,7 +147,7 @@ static class SkillsLowerAllSkillsPatch
         var codes = new List<CodeInstruction>(instructions);
         var targetMethod = AccessTools.Method(typeof(SkillsLowerAllSkillsPatch), nameof(GetCustomFactor));
 
-        for (int i = 0; i < codes.Count; i++)
+        for (int i = 0; i < codes.Count; ++i)
         {
             if (codes[i].opcode == OpCodes.Ldfld && codes[i].operand.ToString().Contains("Skills::m_level"))
             {
