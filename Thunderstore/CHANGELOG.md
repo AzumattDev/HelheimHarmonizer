@@ -1,5 +1,6 @@
 | `Version` | `Update Notes`                                                                                                                                                                                                  |
 |-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.0.9     | - Update ServerSync internally for Crossplay                                                                                                                                                                    |
 | 1.0.8     | - Return accidental commented out patch for skill reduction. Toggle should work again.                                                                                                                          |
 | 1.0.7     | - Update for Valheim latest update (0.220.3)                                                                                                                                                                    |
 | 1.0.6     | - Recompile for Ashlands                                                                                                                                                                                        |
